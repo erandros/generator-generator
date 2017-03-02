@@ -4,8 +4,6 @@ var chalk = require('chalk');
 var yosay = require('yosay');
 var string = require('string');
 var extend = require('deep-extend');
-var hogan = require('hogan.js');
-var extend = require('deep-extend');
 
 function cap(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -58,9 +56,9 @@ module.exports = Generator.extend({
       }));
     };
     // End of hogan override
-    
-    var obj = {
 
+    var obj = {
+      name: name
     };
     this.fs.copyTpl(
       this.templatePath('{{ templateName }}'),
