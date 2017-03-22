@@ -5,25 +5,25 @@ const superb = require('superb');
 const yosay = require('yosay');
 const hogan = require('hogan.js');
 const extend = require('deep-extend');
+const extra = require('yeoman-extra');
 
 module.exports = class extends Generator {
   constructor(args, opts) {
     super(args, opts);
-
-    this.argument('name', {
-      type: String,
-      required: true,
-      description: 'Generator name'
-    });
+    extra.inject(this);
   }
 
   prompting() {
     // Have Yeoman greet the user.
     this.log(yosay(
-      'This is the generator for viper-generator. '
+      'This is the generator for generator-generator. '
     ));
 
     var prompts = [{
+      type: 'input',
+      name: 'name',
+      message: "What is the generator name?"
+    }, {
       type: 'input',
       name: 'templateName',
       default: '',
@@ -39,28 +39,9 @@ module.exports = class extends Generator {
   writing() {
     const generatorName = this.fs.readJSON(this.destinationPath('package.json')).name;
 
-    this.fs.copyTpl = function (from, to, context, tplSettings, options) {
-      context = context || {};
-
-      this.copy(from, to, extend(options || {}, {
-        process: function (contents, filename) {
-          return hogan.compile(contents.toString())
-            .render(context);
-          /*
-          return ejs.render(
-            contents.toString(),
-            context,
-            // Setting filename by default allow including partials.
-            extend({filename: filename}, tplSettings || {})
-          );
-          */
-        }
-      }));
-    };
-
-    this.fs.copyTpl(
+    this.fs.copyHogan(
       this.templatePath('index.js'),
-      this.destinationPath(path.join('generators', this.options.name, 'index.js')),
+      this.destinationPath(path.join('generators', this.props.name, 'index.js')),
       {
         // Escape apostrophes from superb to not conflict with JS strings
         superb: superb().replace('\'', '\\\''),
@@ -72,17 +53,8 @@ module.exports = class extends Generator {
     if (this.props.templateName) {
       this.fs.copy(
         this.templatePath('templates/dummyfile.txt'),
-        this.destinationPath(path.join('generators', this.options.name, 'templates/' + this.props.templateName))
+        this.destinationPath(path.join('generators', this.props.name, 'templates/' + this.props.templateName))
       );
     }
-
-    this.fs.copyTpl(
-      this.templatePath('test.js'),
-      this.destinationPath('test/' + this.options.name + '.js'),
-      {
-        name: this.options.name,
-        generatorName
-      }
-    );
   }
 };

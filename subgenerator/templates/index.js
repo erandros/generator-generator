@@ -4,6 +4,8 @@ var chalk = require('chalk');
 var yosay = require('yosay');
 var string = require('string');
 var extend = require('deep-extend');
+var dashify = require('dashify');
+var extra = require('yeoman-extra');
 
 function cap(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -15,6 +17,7 @@ function uncap(string) {
 module.exports = Generator.extend({
   constructor: function(args, opts) {
     Generator.apply(this, arguments);
+    extra.inject(this);
   },
   prompting: function () {
     // Have Yeoman greet the user.
@@ -25,8 +28,7 @@ module.exports = Generator.extend({
     var prompts = [{
       type: 'input',
       name: 'name',
-      message: 'What\'s the name?',
-      default: true
+      message: 'What\'s the name?'
     }];
 
     return this.prompt(prompts).then(function (props) {
@@ -36,33 +38,12 @@ module.exports = Generator.extend({
   },
   writing: function () {
 
-    //Override with hogan
-    this.fs.copyTpl = function (from, to, context, tplSettings, options) {
-      context = context || {};
-
-      this.copy(from, to, extend(options || {}, {
-        process: function (contents, filename) {
-          return hogan.compile(contents.toString())
-            .render(context);
-          /*
-          return ejs.render(
-            contents.toString(),
-            context,
-            // Setting filename by default allow including partials.
-            extend({filename: filename}, tplSettings || {})
-          );
-          */
-        }
-      }));
-    };
-    // End of hogan override
-
     var obj = {
       name: name
     };
-    this.fs.copyTpl(
+    this.fs.copyHandlebars(
       this.templatePath('{{ templateName }}'),
-      this.destinationPath('{{ templateName }}'),
+      this.destinationPath(require('path').join('{{ templateName }}')),
       obj
     );
   }

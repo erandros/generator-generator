@@ -80,8 +80,4 @@ module.exports = class extends Generator {
 
     this.fs.writeJSON(this.destinationPath('package.json'), pkg);
   }
-
-  install() {
-    this.installDependencies({bower: false});
-  }
 };
